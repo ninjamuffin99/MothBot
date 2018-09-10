@@ -6,11 +6,45 @@ let fs = require('fs'),
     var T = new Twit(config);
     
     /* 
-    T.post('statuse/update', { status: 'yung snowflakke greatest rapper alive'}, function(err, data, response) {
+    T.post('statuses/update', { status: 'yung snowflakke greatest rapper alive'}, function(err, data, response) {
         console.log(data)
+        console.log(err);
     });
     */
 
+    var stream = T.stream('user');
+    stream.on('tweet', tweetEvent)
+
+    function tweetEvent(eventMsg)
+    {
+        var replyTo = eventMsg.in_reply_to_screen_name;
+        var text = eventMsg.text;
+        var from = eventMsg.user.screen_name;
+        console.log('tweet received from another account: ', text);
+
+        replyTweet(newTweet);
+    }
+
+    function replyTweet(tweetText) 
+    {
+        var post_params = {
+            status: tweetText
+        };
+
+        T.post('statuses/update', post_params, logTweet);
+        function logTweet(err, data, response) 
+        {
+            if (err) 
+            {
+                return err;
+            } 
+            else 
+            {
+                console.log('\n tweet sent from replier bot: ', post_params.status);
+            }
+        }
+    }
+/* 
     function random_from_array(images)
     {
        return images[Math.floor(Math.random() * images.length)];
@@ -70,10 +104,11 @@ let fs = require('fs'),
                 });
 
                 setInterval(function()
-            {
-                upload_random_image(images);
-            }, 3600000); // 1 hour interval
+                            {
+                                upload_random_image(images);
+                            }, 3600000); // 1 hour interval
            }
         });
     }
 
+ */
